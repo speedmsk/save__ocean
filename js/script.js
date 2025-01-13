@@ -1,70 +1,49 @@
-console.log("Hello world!");
-
-const myName = "Jonas Schmedtmann";
-const h1 = document.querySelector(".heading-primary");
-console.log(myName);
-console.log(h1);
-
-// h1.addEventListener("click", function () {
-//   h1.textContent = myName;
-//   h1.style.backgroundColor = "red";
-//   h1.style.padding = "5rem";
-// });
-
-///////////////////////////////////////////////////////////
-// Set current year
-const yearEl = document.querySelector(".year");
-const currentYear = new Date().getFullYear();
-yearEl.textContent = currentYear;
-
-///////////////////////////////////////////////////////////
-// Make mobile navigation work
-
 const btnNavEl = document.querySelector(".btn-mobile-nav");
 const headerEl = document.querySelector(".header");
 
+// Toggle navigation menu
 btnNavEl.addEventListener("click", function () {
   headerEl.classList.toggle("nav-open");
 });
-
-///////////////////////////////////////////////////////////
-// Smooth scrolling animation
 
 const allLinks = document.querySelectorAll("a:link");
 
 allLinks.forEach(function (link) {
   link.addEventListener("click", function (e) {
-    e.preventDefault();
     const href = link.getAttribute("href");
 
-    // Scroll back to top
-    if (href === "#")
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
+    // Prevent default for internal links only
+    if (href.startsWith("#")) {
+      e.preventDefault();
 
-    // Scroll to other links
-    if (href !== "#" && href.startsWith("#")) {
-      const sectionEl = document.querySelector(href);
-      sectionEl.scrollIntoView({ behavior: "smooth" });
+      // Scroll to the top
+      if (href === "#") {
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+      }
+
+      // Scroll to a specific section
+      if (href !== "#") {
+        const sectionEl = document.querySelector(href);
+        sectionEl.scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Close mobile navigation
+      if (link.classList.contains("main-nav-link")) {
+        headerEl.classList.toggle("nav-open");
+      }
     }
-
-    // Close mobile naviagtion
-    if (link.classList.contains("main-nav-link"))
-      headerEl.classList.toggle("nav-open");
   });
 });
-
-///////////////////////////////////////////////////////////
-// Sticky navigation
 
 const sectionHeroEl = document.querySelector(".section-hero");
 
 const obs = new IntersectionObserver(
   function (entries) {
     const ent = entries[0];
-    console.log(ent);
+    //console.log(ent);
 
     if (ent.isIntersecting === false) {
       document.body.classList.add("sticky");
@@ -75,7 +54,7 @@ const obs = new IntersectionObserver(
     }
   },
   {
-    // In the viewport
+   
     root: null,
     threshold: 0,
     rootMargin: "-80px",
@@ -83,75 +62,69 @@ const obs = new IntersectionObserver(
 );
 obs.observe(sectionHeroEl);
 
-///////////////////////////////////////////////////////////
-// Fixing flexbox gap property missing in some Safari versions
-function checkFlexGap() {
-  var flex = document.createElement("div");
-  flex.style.display = "flex";
-  flex.style.flexDirection = "column";
-  flex.style.rowGap = "1px";
+document.addEventListener("DOMContentLoaded", function () {
+  const getDonations = parseFloat(localStorage.getItem("totalDonations")) || 0;
+    const goal = 10000; 
+    const totalDonations = getDonations; 
+    const progressPercentage = Math.min((totalDonations / goal) * 100, 100); 
 
-  flex.appendChild(document.createElement("div"));
-  flex.appendChild(document.createElement("div"));
+    const progressWater = document.querySelector(".progress-water");
+    const progressLabel = document.querySelector(".progress-label");
 
-  document.body.appendChild(flex);
-  var isSupported = flex.scrollHeight === 1;
-  flex.parentNode.removeChild(flex);
-  console.log(isSupported);
+   
+    progressWater.style.width = `${progressPercentage}%`;
+    progressLabel.textContent = `$${totalDonations.toFixed(2)} Raised`;
+});
 
-  if (!isSupported) document.body.classList.add("no-flexbox-gap");
+
+document.addEventListener("DOMContentLoaded", function () {
+const loginLink = document.getElementById("login-link");
+const logoutButton = document.getElementById("logout-button");
+const adminLinks = document.querySelectorAll(".admin-link");
+const userGreeting = document.getElementById("greeting-text");
+
+
+const isLoggedIn = localStorage.getItem("login") === "true";
+const isAdmin = localStorage.getItem("isAdmin") === "true"; 
+const loggedInUser = localStorage.getItem("loggedInUser");
+
+
+function toggleAuthState(isLoggedIn) {
+if (isLoggedIn) {
+loginLink.style.display = "none";
+logoutButton.style.display = "block"; 
+
+
+if (isAdmin) {
+  adminLinks.forEach((link) => (link.style.display = "block"));
+} else {
+  adminLinks.forEach((link) => (link.style.display = "none"));
 }
-checkFlexGap();
-
-// https://unpkg.com/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js
-
-/*
-.no-flexbox-gap .main-nav-list li:not(:last-child) {
-  margin-right: 4.8rem;
+} else {
+loginLink.style.display = "block"; 
+logoutButton.style.display = "none"; 
+adminLinks.forEach((link) => (link.style.display = "none")); 
+userGreeting.textContent = "";
 }
-
-.no-flexbox-gap .list-item:not(:last-child) {
-  margin-bottom: 1.6rem;
-}
-
-.no-flexbox-gap .list-icon:not(:last-child) {
-  margin-right: 1.6rem;
-}
-
-.no-flexbox-gap .delivered-faces {
-  margin-right: 1.6rem;
-}
-
-.no-flexbox-gap .meal-attribute:not(:last-child) {
-  margin-bottom: 2rem;
-}
-
-.no-flexbox-gap .meal-icon {
-  margin-right: 1.6rem;
-}
-
-.no-flexbox-gap .footer-row div:not(:last-child) {
-  margin-right: 6.4rem;
 }
 
-.no-flexbox-gap .social-links li:not(:last-child) {
-  margin-right: 2.4rem;
+
+toggleAuthState(isLoggedIn);
+
+if (loggedInUser) {
+const user = JSON.parse(loggedInUser);
+userGreeting.textContent = `Hello, ${user.name}!`; 
+userGreeting.style.display = "block"; 
 }
 
-.no-flexbox-gap .footer-nav li:not(:last-child) {
-  margin-bottom: 2.4rem;
-}
 
-@media (max-width: 75em) {
-  .no-flexbox-gap .main-nav-list li:not(:last-child) {
-    margin-right: 3.2rem;
-  }
-}
+logoutButton.addEventListener("click", function () {
+localStorage.setItem("login", "false"); 
+localStorage.setItem("isAdmin", "false"); 
+localStorage.removeItem("loggedInUser"); 
+toggleAuthState(false); 
+});
+});
 
-@media (max-width: 59em) {
-  .no-flexbox-gap .main-nav-list li:not(:last-child) {
-    margin-right: 0;
-    margin-bottom: 4.8rem;
-  }
-}
-*/
+
+

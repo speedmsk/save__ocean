@@ -1,0 +1,16 @@
+body {
+    background-color: #f8f9fa;
+  }
+  .container {
+    margin-top: 50px;
+  }
+  .table-container {
+    overflow-x: auto;
+  }
+  .btn-modify {
+    margin-right: 10px;
+  }
+  .toast-success {
+    background-color: #198754; /* Bootstrap green color */
+    color: white;
+  }
